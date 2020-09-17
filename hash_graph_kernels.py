@@ -11,7 +11,7 @@ from graphkernel import wl_kernel as wl
 
 def main():
     # Load ENZYMES data set
-    graph_db, classes = dp.read_txt("ENZYMES")
+    graph_db  = dp.read_txt("ENZYMES")
 
     # Parameters used: 
     # Compute gram matrix: False, 
@@ -47,7 +47,7 @@ def main():
     gram_matrix = aux.normalize_gram_matrix(gram_matrix)
 
     # Write out LIBSVM matrix
-    dp.write_lib_svm(gram_matrix, classes, "gram_matrix")
+    dp.write_lib_svm(gram_matrix,  "gram_matrix")
 
 
 if __name__ == "__main__":

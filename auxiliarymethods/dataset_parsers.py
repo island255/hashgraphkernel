@@ -8,6 +8,11 @@ import os.path as path
 
 
 def read_txt(ds_name):
+    """
+    refactor: need nodes, edges, node attributes, others not. However, graph label need to be set but not useful.
+    :param ds_name:
+    :return:
+    """
     pre = ""
 
     with open("datasets/" + pre + ds_name + "/" + ds_name + "_graph_indicator.txt", "r") as f:
@@ -57,6 +62,7 @@ def read_txt(ds_name):
             edge_list.append(g.add_edge(e[0] - off, e[1] - off))
 
     # Node labels
+    # not needed in my work
     if path.exists("datasets/" + pre + ds_name + "/" + ds_name + "_node_labels.txt"):
         with open("datasets/" + pre + ds_name + "/" + ds_name + "_node_labels.txt", "r") as f:
             node_labels = [int(i) for i in list(f)]
@@ -85,6 +91,7 @@ def read_txt(ds_name):
 
 
     # Edge Labels
+    # not needed
     if path.exists("datasets/" + ds_name + "/" + ds_name + "_edge_labels.txt"):
         with open("datasets/" + ds_name + "/" + ds_name + "_edge_labels.txt", "r") as f:
             edge_labels = [int(i) for i in list(f)]
@@ -103,6 +110,7 @@ def read_txt(ds_name):
             g.ep.el = l_el[g_id]
 
     # Edge Attributes
+    # not needed
     if path.exists("datasets/" + ds_name + "/" + ds_name + "_edge_attributes.txt"):
         with open("datasets/" + ds_name + "/" + ds_name + "_edge_attributes.txt", "r") as f:
             edge_attributes = [map(float, i.split(',')) for i in list(f)]
@@ -121,19 +129,22 @@ def read_txt(ds_name):
             g.ep.ea = l_ea[g_id]
 
     # Classes
-    with open("datasets/" + pre + ds_name + "/" + ds_name + "_graph_labels.txt", "r") as f:
-        classes = [int(i) for i in list(f)]
-    f.closed
+    # not needed
+    if path.exists("datasets/" + pre + ds_name + "/" + ds_name + "_graph_labels.txt"):
+        with open("datasets/" + pre + ds_name + "/" + ds_name + "_graph_labels.txt", "r") as f:
+            classes = [int(i) for i in list(f)]
+        f.closed
 
-    return graph_db, classes
+
+    return graph_db
 
 
-def write_lib_svm(gram_matrix, classes, name):
+def write_lib_svm(gram_matrix,  name):
     with open(name, "w") as f:
         k = 1
-        for c, row in zip(classes, gram_matrix):
+        for row in gram_matrix:
             s = ""
-            s = str(c) + " " + "0:" + str(k) + " "
+            s = " " + "0:" + str(k) + " "
             for i, r in enumerate(row):
                 s += str(i + 1) + ":" + str(r) + " "
             s += "\n"
