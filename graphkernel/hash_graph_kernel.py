@@ -57,14 +57,14 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
 
     feature_vectors = feature_vectors.tocsr()
 
-    if not use_gram_matrices:
-        # Normalize feature vectors
-        feature_vectors = m.sqrt(1.0 / iterations) * (feature_vectors)
-        # Compute Gram matrix
-        gram_matrix = feature_vectors.dot(feature_vectors.T)
-        gram_matrix = gram_matrix.toarray()
+    # if not use_gram_matrices:
+    #     # Normalize feature vectors
+    #     feature_vectors = m.sqrt(1.0 / iterations) * (feature_vectors)
+    #     # Compute Gram matrix
+    #     gram_matrix = feature_vectors.dot(feature_vectors.T)
+    #     gram_matrix = gram_matrix.toarray()
+    #
+    # if normalize_gram_matrix:
+    #     gram_matrix = aux.normalize_gram_matrix(gram_matrix)
 
-    if normalize_gram_matrix:
-        gram_matrix = aux.normalize_gram_matrix(gram_matrix)
-
-    return gram_matrix
+    return feature_vectors
