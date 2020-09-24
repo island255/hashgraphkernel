@@ -24,6 +24,7 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
     offset = 0
 
     # get seed of locally_sensitive_hashing
+    print("get seed of locally_sensitive_hashing")
     sigma = 1.0
 
     hash_v_set = []
@@ -54,8 +55,13 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
         # axis=0 means normalize each column which would be different for different groups
         colors_0 = pre.scale(colors_0, axis=0)
 
+
+    print("getting unified max_1 for further process...")
     colors_hashed = aux.locally_sensitive_hashing(hash_v, hash_b, colors_0, dim_attributes, lsh_bin_width, sigma=sigma)
     max_1 = int(np.amax(colors_hashed) + 1)
+    
+    print("largest max:" + str(max_1))
+    max_1 = [50,1000,5000,10000]
 
     sub_graph_db = []
 
@@ -67,10 +73,14 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
             print("getting feature vectors for set of graphs: " + str(index))
             start_index = index+1-600
             end_index = index
+            if index == len(graph_db) - 1:
+                start_index = index - index % 600
             start_graph_node_offset = graph_indices[start_index][0]
             end_graph_node_offset = graph_indices[end_index][1]
 
-            sub_colors_0 = colors_0[[start_graph_node_offset,end_graph_node_offset+1]]
+            print(start_graph_node_offset,end_graph_node_offset+1)
+
+            sub_colors_0 = colors_0[start_graph_node_offset : end_graph_node_offset+1]
             for it in xrange(0, iterations):
                 colors_hashed = aux.locally_sensitive_hashing(hash_v_set[it], hash_b_set[it], sub_colors_0,
                                                               dim_attributes, lsh_bin_width, sigma=sigma)
@@ -85,4 +95,5 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
             feature_vectors = feature_vectors.tocsr()
 
             sub_graph_db = []
+            print("writting results")
             dp.save_feature_vectors(feature_vectors, "feature_vectors/sub_vectors_" + str(index))

@@ -76,10 +76,16 @@ def weisfeiler_lehman_subtree_kernel(max_1, graph_db, hashed_attributes, *kwargs
                 colors_0 = compute_coloring(M, colors_0, log_primes[0:len(colors_0)])
                 colors_1 = compute_coloring(M, colors_1, log_primes[0:len(colors_1)])
         else:
-            # max_1 = int(np.amax(colors_1) + 1)
+            print(int(np.amax(colors_1) + 1))
 
+            # for i, index in enumerate(graph_indices):
+            #     if len( np.bincount(colors_1[index[0]:index[1] + 1], minlength=max_1) ) <= max_1:
+            #         feature_vectors.append( np.concatenate((feature_vectors[i], np.bincount(colors_1[index[0]:index[1] + 1], minlength=max_1))) )
+            #     else:
+            #         feature_vectors.append( np.concatenate((feature_vectors[i], np.bincount(colors_1[index[0]:index[1] + 1], minlength=max_1)[:max_1])) )
+            max_1_sub = max_1[it] 
             feature_vectors = [
-                np.concatenate((feature_vectors[i], np.bincount(colors_1[index[0]:index[1] + 1], minlength=max_1))) for
+                np.concatenate((feature_vectors[i], np.bincount(colors_1[index[0]:index[1] + 1], minlength=max_1_sub)[:max_1_sub])) for
                 i, index in enumerate(graph_indices)]
 
             # Avoid coloring computation in last iteration
@@ -87,6 +93,8 @@ def weisfeiler_lehman_subtree_kernel(max_1, graph_db, hashed_attributes, *kwargs
                 colors_1 = compute_coloring(M, colors_1, log_primes[0:len(colors_1)])
 
     if not compute_gram_matrix:
+        print(len(feature_vectors),len(feature_vectors[0]))
+        # print(feature_vectors[0],feature_vectors[1],feature_vectors[2])
         return lil.lil_matrix(feature_vectors, dtype=np.float64)
     else:
         # Make feature vectors sparse
