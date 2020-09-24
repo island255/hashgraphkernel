@@ -44,7 +44,7 @@ def main():
         sub_graph_db.append(graph)
 
         if (index % 600 == 0 or index == len(graph_db) - 1) and index != 0:
-            feature_vectors += rbk.hash_graph_kernel(graph_db, wl.weisfeiler_lehman_subtree_kernel,
+            feature_vectors += rbk.hash_graph_kernel(sub_graph_db, wl.weisfeiler_lehman_subtree_kernel,
                                                      kernel_parameters_wl, 20,
                                                      scale_attributes=True, lsh_bin_width=1.0, sigma=1.0)
             sub_graph_db = []
