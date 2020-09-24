@@ -10,7 +10,7 @@ from sklearn import preprocessing as pre
 from auxiliarymethods import auxiliary_methods as aux
 
 
-def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, lsh_bin_width=1.0, sigma=1.0,
+def hash_graph_kernel(hash_v_set,hash_b_set,graph_db, base_kernel, kernel_parameters, iterations=20, lsh_bin_width=1.0, sigma=1.0,
                       normalize_gram_matrix=True, use_gram_matrices=False, scale_attributes=True):
     num_vertices = 0
     for g in graph_db:
@@ -23,7 +23,7 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
     colors_0 = np.zeros([num_vertices, dim_attributes])
     offset = 0
 
-    gram_matrix = np.zeros([n, n])
+    # gram_matrix = np.zeros([n, n])
 
     # Get attributes from all graph instances
     graph_indices = []
@@ -39,7 +39,7 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
         colors_0 = pre.scale(colors_0, axis=0)
 
     for it in xrange(0, iterations):
-        colors_hashed = aux.locally_sensitive_hashing(colors_0, dim_attributes, lsh_bin_width, sigma=sigma)
+        colors_hashed = aux.locally_sensitive_hashing(hash_v_set[it],hash_b_set[it],colors_0, dim_attributes, lsh_bin_width, sigma=sigma)
 
         tmp = base_kernel(graph_db, colors_hashed, *kernel_parameters)
 
@@ -50,7 +50,7 @@ def hash_graph_kernel(graph_db, base_kernel, kernel_parameters, iterations=20, l
                 feature_vectors = tmp
                 feature_vectors = feature_vectors.tocsr()
                 feature_vectors = m.sqrt(1.0 / iterations) * (feature_vectors)
-                gram_matrix += feature_vectors.dot(feature_vectors.T).toarray()
+                # gram_matrix += feature_vectors.dot(feature_vectors.T).toarray()
 
             else:
                 feature_vectors = sparse.hstack((feature_vectors, tmp))

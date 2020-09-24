@@ -20,12 +20,12 @@ def normalize_gram_matrix(gram_matrix):
     return gram_matrix_norm
 
 
-def locally_sensitive_hashing(m, d, w, sigma=1.0):
-    # Compute random projection vector
-    v = np.random.randn(d, 1) * sigma  # / np.random.randn(d, 1)
+def locally_sensitive_hashing(v,b,m, d, w, sigma=1.0):
+    # # Compute random projection vector
+    # v = np.random.randn(d, 1) * sigma  # / np.random.randn(d, 1)
 
-    # Compute random offset
-    b = w * np.random.rand() * sigma
+    # # Compute random offset
+    # b = w * np.random.rand() * sigma
 
     # Compute hashes
     labels = np.floor((np.dot(m, v) + b) / w)

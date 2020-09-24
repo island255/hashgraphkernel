@@ -5,7 +5,7 @@
 import graph_tool as gt
 import numpy as np
 import os.path as path
-
+import pickle
 
 def read_txt(ds_name):
     """
@@ -152,15 +152,7 @@ def write_lib_svm(gram_matrix,  name):
             k += 1
     f.closed
 
-def write_feature_vectors(feature_vectors, name):
+def save_feature_vectors(feature_vectors, name):
     with open(name, "w") as f:
-        k = 1
-        for row in feature_vectors:
-            s = ""
-            s = " " + "0:" + str(k) + " "
-            for i, r in enumerate(row):
-                s += str(i + 1) + ":" + str(r) + " "
-            s += "\n"
-            f.write(s)
-            k += 1
+       pickle.dump(feature_vectors,f) 
     f.closed
