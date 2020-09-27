@@ -3,7 +3,7 @@ import pickle
 import scipy.sparse as sparse
 from auxiliarymethods import auxiliary_methods as aux
 import math as m
-
+from numba import jit, cuda 
 
 def get_graph_file_path(dir_path):
     """
@@ -63,7 +63,7 @@ def read_graph_names(file_name):
             graph_names.append(line.split(",")[-1].strip("/").strip("\n").split("/"))
     return graph_names
 
-
+@jit
 def separate_vectors_by_names(graph_names, graph_vectors):
     """
     separate graph names and vectors according their projects
@@ -77,13 +77,15 @@ def separate_vectors_by_names(graph_names, graph_vectors):
     graph_vectors_separate = []
 
     print(len(graph_names), graph_vectors._shape)
+    start_index = 0
+    end_index = 0
     for i in range(len(graph_names)):
-        start_index = 0
-        end_index = 0
+
         if i != 0 and (graph_names[i][0] != graph_names[i - 1][0] or graph_names[i][1] != graph_names[i - 1][1]):
             print("separating num: " + str(i))
             print ("separating name: " + graph_names[i][0] + "-" + graph_names[i][1])
             end_index = i
+            print(str(start_index),str(end_index))
             graph_names_separate.append(graph_names[start_index: end_index])
             graph_vectors_separate.append(graph_vectors[start_index: end_index])
             start_index = i
@@ -124,9 +126,9 @@ def write_similarity_results(gram_matrix, graph_name_pair):
         f.write(graph_name_pair_0 + "\n")
         f.write(graph_name_pair_1 + "\n")
         for line in gram_matrix:
-            f.write(",".join(line) + "\n")
+            f.write(",".join([str(x) for x in line]) + "\n")
 
-
+@jit
 def calculate_similarities(graph_names_separate, graph_vectors_separate):
     """
     calculate similarities between groups
@@ -135,19 +137,27 @@ def calculate_similarities(graph_names_separate, graph_vectors_separate):
     :return:
     """
     for i in range(len(graph_names_separate)):
+        # if i>0:
+        #     break
         for j in range(len(graph_names_separate)):
             graph_name_pair = (graph_names_separate[i], graph_names_separate[j])
             print ("process groups of " + graph_name_pair[0][0][0] + "_" + graph_name_pair[0][0][1] + "-" +
                    graph_name_pair[1][0][0] + "_" + graph_name_pair[1][0][1])
-            gram_matrix = graph_vectors_separate[i].dot(graph_vectors_separate[j].T)
-            gram_matrix = gram_matrix.toarray()
-            gram_matrix = aux.normalize_gram_matrix(gram_matrix)
 
-            write_similarity_results(gram_matrix, graph_name_pair)
+            filename = graph_name_pair[0][0][0] + "_" + graph_name_pair[0][0][1] + "-" + graph_name_pair[1][0][0] + "_" + \
+               graph_name_pair[1][0][1]
+            dir_name = "similarities"
+            if os.path.exists(dir_name + "/" + filename) is False:
+                gram_matrix = graph_vectors_separate[i].dot(graph_vectors_separate[j].T)
+                gram_matrix = gram_matrix.toarray()
+                gram_matrix = aux.normalize_gram_matrix(graph_vectors_separate[i], graph_vectors_separate[j], gram_matrix)
+
+                write_similarity_results(gram_matrix, graph_name_pair)
 
 
 def main():
     print("getting gram_matrix ...")
+    # if os.path.exists("graph_vectors_separate") or os.path.exists("graph_names_separate") is False:
     if os.path.exists("graph_vectors"):
         print("load graph_vectors from pickle")
         graph_vectors = read_pickle("graph_vectors")
@@ -169,6 +179,13 @@ def main():
 
     print("separate vectors according their groups")
     graph_names_separate, graph_vectors_separate = separate_vectors_by_names(graph_names, graph_vectors)
+        # write_pickle(graph_vectors_separate, "graph_vectors_separate")
+        # write_pickle(graph_names_separate,"graph_names_separate")
+
+    # else:
+    #     print("load separate graph names and graph vectors")
+    #     graph_vectors_separate = read_pickle("graph_vectors_separate")
+    #     graph_names_separate = read_pickle("graph_names_separate")
 
     print("calculate similarities between groups")
     calculate_similarities(graph_names_separate, graph_vectors_separate)
